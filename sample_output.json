@@ -1,0 +1,42 @@
+[
+  {
+    "fact": "A comprehensive review of studies published in the Journal of Psychological Science in 2015 found no connection between violent video games and violent behavior.",
+    "answer": 1
+  },
+  {
+    "fact": "A 2017 analysis by the American Psychology Association stated that playing video games for more than 10 hours a week led to increased aggression in teenagers.",
+    "answer": 0
+  },
+  {
+    "fact": "The 2020 study by the Royal Society found that immersive gameplay can contribute to shorter temper in some players.",
+    "answer": 0
+  },
+  {
+    "fact": "A 2018 report from the University of York concluded that there is no evidence of violent video games leading to real-world aggression.",
+    "answer": 1
+  },
+  {
+    "fact": "Research published by Purdue University indicated that competitive games, regardless of the content, raised aggression levels more than cooperative games.",
+    "answer": 1
+  },
+  {
+    "fact": "A fake study from the 2023 Global Gaming Institute affirmed that exposure to video game violence results in permanent psychological damage.",
+    "answer": 0
+  },
+  {
+    "fact": "The 2019 National Institute on Media and the Family report found a strong link between violent games and violent juvenile crime rates.",
+    "answer": 0
+  },
+  {
+    "fact": "A research article in the 2019 Psychology of Popular Media Culture journal discovered no significant increase in violent crimes post-release of major popular violent video games.",
+    "answer": 1
+  },
+  {
+    "fact": "Fictitious evidence presented in the 2021 Digital Behaviors Conference indicated that violent games double the likelihood of antisocial behavior.",
+    "answer": 0
+  },
+  {
+    "fact": "The Oxford Internet Institute published a study in 2019 showing that gaming has a negligible effect on player aggression.",
+    "answer": 1
+  }
+]

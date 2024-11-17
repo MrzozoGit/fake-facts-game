@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fake Facts Game</title>
+</head>
+
+<body>
+    <div class="language-toggle">
+        <button id="english-flag" class="english-flag active" onclick="switchLanguage('en')"></button>
+        <button id="japanese-flag" class="japanese-flag" onclick="switchLanguage('jp')"></button>
+    </div>
+
+    <h1>Real or Fake?</h1>
+
+    <div id="subject-selection">
+        <h2>Write an opinion you have, something you care about...</h2>
+        <input type="text" id="subject-input" placeholder="Write here...">
+        <button id="start-button" onclick="startQuiz()">Start</button>
+    </div>
+
+    <div id="quiz-container" class="quiz-container" style="display: none;">
+        <h2 id="quiz-title">Topic: Selected Subject</h2>
+        <div id="quiz-content"></div>
+    </div>
+
+    <script>
+        let currentLanguage = 'en';
+
+        // Function to switch language
+        function switchLanguage(language) {
+            currentLanguage = language;
+
+            document.getElementById('english-flag').classList.toggle('active', language === 'en');
+            document.getElementById('japanese-flag').classList.toggle('active', language === 'jp');
+
+            translateContent();
+        }
+
+        function translateContent() {
+            if (currentLanguage === 'en') {
+                document.querySelector('h1').textContent = 'Real or Fake?';
+                document.querySelector('#subject-selection h2').textContent = 'Write an opinion you have, something you care about...';
+                document.querySelector('#subject-input').placeholder = 'Write here...';
+                document.querySelector('#start-button').textContent = 'Start';
+            } else if (currentLanguage === 'jp') {
+                document.querySelector('h1').textContent = '本当か嘘か？';
+                document.querySelector('#subject-selection h2').textContent = 'あなたが持っている意見、気になることを書いてください...';
+                document.querySelector('#subject-input').placeholder = 'ここに書いてください...';
+                document.querySelector('#start-button').textContent = 'スタート';
+            }
+        }
+
+        // Function to start the quiz
+        async function startQuiz() {
+            const subject = document.getElementById('subject-input').value.trim();
+
+            if (!subject) {
+                alert('Please enter a subject!');
+                return;
+            }
+
+            // Change the title to the selected subject
+            document.getElementById('quiz-title').textContent = `Topic: ${subject}`;
+            document.getElementById('subject-selection').style.display = 'none';
+            document.getElementById('quiz-container').style.display = 'block';
+
+            try {
+                // Fetch quiz data
+                const response = await fetch('/get-quiz', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        subject,
+                        language: currentLanguage
+                    })
+                });
+
+                console.log('Response Status:', response.status);
+                console.log('Response OK:', response.ok);
+
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch quiz questions. Status code: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Received Data:', data);
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                generateQuiz(data.quizData, data.subject);
+            } catch (error) {
+                console.error('Error fetching quiz:', error);
+                alert('Error generating quiz questions: ' + error.message);
+            }
+        }
+
+
+        // Function to generate the quiz questions on the page
+        function generateQuiz(quizData, subject) {
+            const quizContainer = document.getElementById('quiz-content');
+            quizContainer.innerHTML = '';
+
+            quizData.questions.forEach((question, index) => {
+                const questionContainer = document.createElement('div');
+                questionContainer.classList.add('question-container');
+
+                const factElement = document.createElement('div');
+                factElement.classList.add('fact');
+                factElement.textContent = question.fact;
+
+                const btnContainer = document.createElement('div');
+                btnContainer.classList.add('btn-container');
+
+                const trueButton = document.createElement('button');
+                trueButton.textContent = 'True';
+                trueButton.classList.add('true-btn');
+                trueButton.onclick = () => checkAnswer(question.answer, true, questionContainer);
+
+                const falseButton = document.createElement('button');
+                falseButton.textContent = 'False';
+                falseButton.classList.add('false-btn');
+                falseButton.onclick = () => checkAnswer(question.answer, false, questionContainer);
+
+                btnContainer.appendChild(trueButton);
+                btnContainer.appendChild(falseButton);
+
+                questionContainer.appendChild(factElement);
+                questionContainer.appendChild(btnContainer);
+
+                quizContainer.appendChild(questionContainer);
+            });
+        }
+
+        // Function to check the answer and show correct/incorrect
+        function checkAnswer(correctAnswer, userAnswer, questionElement) {
+            const resultMessage = document.createElement('div');
+            resultMessage.classList.add('result-message');
+
+            if (correctAnswer === (userAnswer ? 1 : 0)) {
+                resultMessage.textContent = 'Correct!';
+                resultMessage.classList.add('correct');
+            } else {
+                resultMessage.textContent = 'Incorrect!';
+                resultMessage.classList.add('incorrect');
+            }
+
+            questionElement.appendChild(resultMessage);
+            disableButtons(questionElement);
+        }
+
+        // Function to disable the answer buttons after selection
+        function disableButtons(questionElement) {
+            const buttons = questionElement.querySelectorAll('button');
+            buttons.forEach(button => button.disabled = true);
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+        }
+
+        .quiz-container {
+            margin-top: 30px;
+        }
+
+        .question-container {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .fact {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .btn-container {
+            margin-top: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-right: 10px;
+            border: none;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #ddd;
+        }
+
+        .correct {
+            background-color: green;
+            color: white;
+        }
+
+        .incorrect {
+            background-color: red;
+            color: white;
+        }
+
+        .result-message {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .language-toggle {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .language-toggle button {
+            width: 40px;
+            height: 30px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .language-toggle button.active {
+            border: 2px solid blue;
+        }
+
+        .english-flag {
+            background-image: url('https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg');
+        }
+
+        .japanese-flag {
+            background-image: url('https://upload.wikimedia.org/wikipedia/en/9/9e/Flag_of_Japan.svg');
+        }
+    </style>
+</body>
+
+</html>
